@@ -3,10 +3,13 @@ const path = require('path');
 
 const express = require('express');
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const bodyParser = require('body-parser');
+
+const errorController = require('./controllers/error');
+
 // const expressHbs = require('express-handlebars');
 
 // const routes = require('./routes');
@@ -33,12 +36,10 @@ app.set('views', 'views');              // By default second parameter naming is
 app.use(bodyParser.urlencoded({ extended: false }));       // Express parser (Middleware), parse the incoming data
 app.use(express.static(path.join(__dirname, 'public')));   // Static middleware which gives only readonly / static content, it can be used to import css, js 
 
-app.use('/admin', adminData.routes);
+// app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-app.use((req, res, next) => {
-    res.status(404).render('404', { pageTitle: 'Page Not Found', path: '' });     // Using Pug
-    // res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-});
+app.use(errorController.get404);
 
 app.listen(3000);
