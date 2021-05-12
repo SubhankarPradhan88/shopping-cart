@@ -37,6 +37,7 @@ app.use(bodyParser.urlencoded({ extended: false }));       // Express parser (Mi
 app.use(express.static(path.join(__dirname, 'public')));   // Static middleware which gives only readonly / static content, it can be used to import css, js 
 
 // app.use('/admin', adminData.routes);
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
