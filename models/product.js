@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const Cart = require('./cart');
+
 const p = path.join(path.dirname(require.main.filename), 'data', 'products.json');
 
 const getProductsFromFile = cb => {
@@ -25,13 +27,10 @@ module.exports = class Product {
 
     save() {
         getProductsFromFile(products => {
-            console.log('Null ID:', this.id);
             if(this.id) {
-                console.log('this.id', this.id);
                 const existingProductsIndex = products.findIndex(prod => prod.id === this.id);
                 const updatedProducts = [...products];
                 updatedProducts[existingProductsIndex] = this;
-                console.log('this ==>', this);
                 fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
                     console.log(err);
                 });
@@ -49,10 +48,21 @@ module.exports = class Product {
         getProductsFromFile(cb);
     }
 
+    static deleteById(id) {
+        getProductsFromFile(products => {
+            const delProduct = products.find(prod => prod.id === id); 
+            const updatedProducts = products.filter(prod => prod.id !== id); 
+            fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+                if(!err) {
+                    Cart.deleteProduct(id, delProduct.price);
+                }
+            });
+        })
+    }
+
     static findById(id, cb) {
         getProductsFromFile(products => {
             const product = products.find(p => p.id === id);    // Find method retuns the first matched object
-            console.log('product =>', product);
             cb(product);
         })
     }

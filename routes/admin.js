@@ -21,6 +21,8 @@ router.get('/edit-product/:productId', adminController.getEditProduct);
 
 router.post('/edit-product', adminController.postEditProducts);
 
+router.post('/delete-product', adminController.postDeleteProduct);
+
 // To export multiple fields
 // exports.routes = router;
 // exports.products = products;
