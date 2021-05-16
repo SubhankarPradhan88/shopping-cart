@@ -3,19 +3,19 @@ const path = require('path');
 
 const express = require('express');
 
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
-
 const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
+
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+
+const app = express();
 
 // const expressHbs = require('express-handlebars');
 
 // const routes = require('./routes');
 // const server = http.createServer(routes.handler);
-
-const app = express();
 
 // Configuration for dynamic template views using PUG or handlebars
 
