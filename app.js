@@ -1,4 +1,3 @@
-// const http = require('http');
 const path = require('path');
 
 const express = require('express');
@@ -6,41 +5,74 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
+const sequelize = require('./util/database');
+const Product = require('./models/product');
+const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const app = express();
 
-// const expressHbs = require('express-handlebars');
-
-// const routes = require('./routes');
-// const server = http.createServer(routes.handler);
-
-// Configuration for dynamic template views using PUG or handlebars
-
-// app.engine(
-//     'hbs',
-//     expressHbs({
-//       layoutsDir: 'views/layouts/',
-//       defaultLayout: 'main-layout',
-//       extname: 'hbs'
-//     })
-//   );
-
-// app.set('view engine', 'pug');       // DEFAULT templating engine (PUG)
-// app.set('view engine', 'hbs');       // DEFAULT templating engine (handlebars)
 app.set('view engine', 'ejs');          // DEFAULT templating engine (EJS)
 app.set('views', 'views');              // By default second parameter naming is views, change it accordingly
 
 app.use(bodyParser.urlencoded({ extended: false }));       // Express parser (Middleware), parse the incoming data
 app.use(express.static(path.join(__dirname, 'public')));   // Static middleware which gives only readonly / static content, it can be used to import css, js 
 
-// app.use('/admin', adminData.routes);
+app.use((req, res, next) => {
+    User.findByPk(1)
+    .then(user => {
+        req.user = user;
+        next();
+    })
+    .catch(err => console.log(err));
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-app.listen(3000);
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
+
+let localUser;
+sequelize
+// .sync({ force: true })   // Use this to drop all the table and create it newly / Overwrite the data
+.sync()
+.then(result => {
+    return User.findByPk(1);
+})
+.then(user => {
+    if(!user) {
+        return User.create({ name: 'Subh', email: 'test@test.com'});
+    }
+    return user;
+})
+.then(user => {
+    localUser = user;
+    return localUser.getCart();
+})
+.then(cart => {
+    if(!cart) {
+    // only create if no cart exists
+      return localUser.createCart();
+    }
+    return cart;
+})
+.then(cart => {
+    app.listen(3000);
+})
+.catch(err => console.log(err));
