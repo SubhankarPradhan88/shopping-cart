@@ -12,7 +12,7 @@ const flash = require('connect-flash');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb+srv://subhankar:Township88@cluster0.lrhlo.mongodb.net/shop';
+const MONGODB_URI = 'mongodb+srv://<Username>:<Password>@cluster0.lrhlo.mongodb.net/shop';
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
